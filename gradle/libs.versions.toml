@@ -40,7 +40,13 @@ androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-mani
 androidx-compose-material3 = "androidx.compose.material3:material3:1.0.0-alpha08"
 androidx-compose-navigation = { module = "androidx.navigation:navigation-compose", version = "2.5.2" }
 
+compose-animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "jetbrains-compose" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "jetbrains-compose" }
+compose-material = { module = "org.jetbrains.compose.material:material", version.ref = "jetbrains-compose" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "jetbrains-compose" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "jetbrains-compose" }
+compose-ui-tooling = { module = "org.jetbrains.compose.ui-tooling:ui-tooling", version.ref = "jetbrains-compose" }
+compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui-tooling-preview:ui-tooling-preview", version.ref = "jetbrains-compose" }
 
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
@@ -54,8 +60,8 @@ kotlin-compile-testing = "com.github.tschuchortdev:kotlin-compile-testing-ksp:1.
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
-kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet"}
-kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet"}
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
 kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.0"
 kotlinx-serialization-xml = { module = "com.ryanharter.kotlinx.serialization:kotlinx-serialization-xml", version = "0.0.1-SNAPSHOT" }
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
@@ -88,5 +94,5 @@ kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "1.7.20-1.0.7"}
+ksp = { id = "com.google.devtools.ksp", version = "1.7.20-1.0.7" }
 mavenPublish = { id = "com.vanniktech.maven.publish.base", version = "0.22.0" }

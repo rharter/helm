@@ -10,11 +10,11 @@ import org.junit.Test
 
 class HelmSymbolProcessorTest {
 
-    @Test
-    fun `generates presenter subcomponent`() {
-        val source = kotlin(
-            "MyPresenter.kt",
-            """
+  @Test
+  fun `generates presenter subcomponent`() {
+    val source = kotlin(
+      "MyPresenter.kt",
+      """
                 package com.ryanharter.helm.codegen.test
                 
                 import androidx.compose.runtime.Composable
@@ -34,27 +34,27 @@ class HelmSymbolProcessorTest {
                     }
                 }
             """
-        )
+    )
 
-        val compilation = KotlinCompilation().apply {
-            inheritClassPath = true
-            sources = listOf(source)
-            symbolProcessorProviders = listOf(HelmSymbolProcessorProvider())
-        }
-        val result = compilation.compile()
-        assertThat(result.exitCode).isEqualTo(ExitCode.OK)
-        val generatedSources = compilation.kspSourcesDir.walkTopDown().filter {
-            it.isFile
-        }.toList()
-        val genned = generatedSources.first { it.name.endsWith("HelmComponent.kt") }.readText()
-        assertThat(generatedSources.size).isEqualTo(1)
+    val compilation = KotlinCompilation().apply {
+      inheritClassPath = true
+      sources = listOf(source)
+      symbolProcessorProviders = listOf(HelmSymbolProcessorProvider())
     }
+    val result = compilation.compile()
+    assertThat(result.exitCode).isEqualTo(ExitCode.OK)
+    val generatedSources = compilation.kspSourcesDir.walkTopDown().filter {
+      it.isFile
+    }.toList()
+    val genned = generatedSources.first { it.name.endsWith("HelmComponent.kt") }.readText()
+    assertThat(generatedSources.size).isEqualTo(1)
+  }
 
-    @Test
-    fun `generates ui subcomponent`() {
-        val source = kotlin(
-            "MyUi.kt",
-            """
+  @Test
+  fun `generates ui subcomponent`() {
+    val source = kotlin(
+      "MyUi.kt",
+      """
                 package com.ryanharter.helm.codegen.test
                 
                 import androidx.compose.runtime.Composable
@@ -73,19 +73,19 @@ class HelmSymbolProcessorTest {
                     }
                 }
             """
-        )
+    )
 
-        val compilation = KotlinCompilation().apply {
-            inheritClassPath = true
-            sources = listOf(source)
-            symbolProcessorProviders = listOf(HelmSymbolProcessorProvider())
-        }
-        val result = compilation.compile()
-        assertThat(result.exitCode).isEqualTo(ExitCode.OK)
-        val generatedSources = compilation.kspSourcesDir.walkTopDown().filter {
-            it.isFile
-        }.toList()
-        val genned = generatedSources.first { it.name.endsWith("HelmComponent.kt") }.readText()
-        assertThat(generatedSources.size).isEqualTo(1)
+    val compilation = KotlinCompilation().apply {
+      inheritClassPath = true
+      sources = listOf(source)
+      symbolProcessorProviders = listOf(HelmSymbolProcessorProvider())
     }
+    val result = compilation.compile()
+    assertThat(result.exitCode).isEqualTo(ExitCode.OK)
+    val generatedSources = compilation.kspSourcesDir.walkTopDown().filter {
+      it.isFile
+    }.toList()
+    val genned = generatedSources.first { it.name.endsWith("HelmComponent.kt") }.readText()
+    assertThat(generatedSources.size).isEqualTo(1)
+  }
 }

@@ -1,20 +1,20 @@
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
+  repositories {
+    gradlePluginPortal()
+    google()
+    mavenCentral()
+  }
 }
 
 dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        maven {
-            setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
-        }
+  repositories {
+    google()
+    mavenCentral()
+    mavenLocal()
+    maven {
+      setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
     }
+  }
 }
 
 rootProject.name = "helm-parent"

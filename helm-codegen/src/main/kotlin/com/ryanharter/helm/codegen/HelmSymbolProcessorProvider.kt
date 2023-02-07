@@ -37,222 +37,224 @@ import dagger.hilt.InstallIn
 import dagger.multibindings.IntoSet
 
 class HelmSymbolProcessorProvider : SymbolProcessorProvider {
-    override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-        return HelmSymbolProcessor(environment.logger, environment.codeGenerator)
-    }
+  override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+    return HelmSymbolProcessor(environment.logger, environment.codeGenerator)
+  }
 }
 
 private val helmInjectAnnotationName = HelmInject::class.qualifiedName!!
 
 class HelmSymbolProcessor(
-    private val logger: KSPLogger,
-    private val codeGenerator: CodeGenerator
+  private val logger: KSPLogger,
+  private val codeGenerator: CodeGenerator
 ) : SymbolProcessor {
-    override fun process(resolver: Resolver): List<KSAnnotated> {
-        val symbols = HelmSymbols(resolver)
-        resolver.getSymbolsWithAnnotation(helmInjectAnnotationName)
-            .forEach { element ->
-                if (element !is KSClassDeclaration) {
-                    error("Can only generate code for classes and functions.")
-                }
-                generatePresenterSubcomponent(element, symbols)
-            }
-        return emptyList()
-    }
-
-    private fun generatePresenterSubcomponent(element: KSAnnotated, symbols: HelmSymbols) {
+  override fun process(resolver: Resolver): List<KSAnnotated> {
+    val symbols = HelmSymbols(resolver)
+    resolver.getSymbolsWithAnnotation(helmInjectAnnotationName)
+      .forEach { element ->
         if (element !is KSClassDeclaration) {
-            error("Can only generate code for classes and functions.")
+          error("Can only generate code for classes and functions.")
         }
-        val elementType = element.asType(emptyList())
-        val isPresenter = symbols.presenter.starProjection().isAssignableFrom(elementType)
-        val isUi = symbols.ui.starProjection().isAssignableFrom(elementType)
-        require(isPresenter xor isUi) { "HiltInject annotated classed must implement Presenter<*, *> or Ui<*, *>"}
+        generatePresenterSubcomponent(element, symbols)
+      }
+    return emptyList()
+  }
 
-        val annotation = element.annotations.first { it.annotationType.resolve() == symbols.helmInject }
-        val screen = annotation.arguments.first { it.name?.asString() == "screen" }.value as KSType
-        val parentComponent = annotation.arguments.first { it.name?.asString() == "scope" }.value as KSType
+  private fun generatePresenterSubcomponent(element: KSAnnotated, symbols: HelmSymbols) {
+    if (element !is KSClassDeclaration) {
+      error("Can only generate code for classes and functions.")
+    }
+    val elementType = element.asType(emptyList())
+    val isPresenter = symbols.presenter.starProjection().isAssignableFrom(elementType)
+    val isUi = symbols.ui.starProjection().isAssignableFrom(elementType)
+    require(isPresenter xor isUi) { "HiltInject annotated classed must implement Presenter<*, *> or Ui<*, *>" }
 
-        val componentClassName = ClassName(element.packageName.asString(), "${element.simpleName.asString()}_HelmComponent")
-        val factoryClassName = componentClassName.nestedClass("Factory")
-        val parentModuleName = componentClassName.nestedClass("ParentModule")
+    val annotation = element.annotations.first { it.annotationType.resolve() == symbols.helmInject }
+    val screen = annotation.arguments.first { it.name?.asString() == "screen" }.value as KSType
+    val parentComponent =
+      annotation.arguments.first { it.name?.asString() == "scope" }.value as KSType
 
-        val subcomponentTypeSpec = TypeSpec.interfaceBuilder(componentClassName)
-            .addAnnotation(Subcomponent::class)
-            // TODO Add generated annotation
-            .addFunction(
-                FunSpec.builder("element")
-                    .addModifiers(KModifier.ABSTRACT)
-                    .returns(element.toClassName())
-                    .build()
+    val componentClassName =
+      ClassName(element.packageName.asString(), "${element.simpleName.asString()}_HelmComponent")
+    val factoryClassName = componentClassName.nestedClass("Factory")
+    val parentModuleName = componentClassName.nestedClass("ParentModule")
+
+    val subcomponentTypeSpec = TypeSpec.interfaceBuilder(componentClassName)
+      .addAnnotation(Subcomponent::class)
+      // TODO Add generated annotation
+      .addFunction(
+        FunSpec.builder("element")
+          .addModifiers(KModifier.ABSTRACT)
+          .returns(element.toClassName())
+          .build()
+      )
+      .addType(
+        generateSubcomponentFactory(
+          factoryClassName,
+          componentClassName,
+          screen.toClassName(),
+          isPresenter,
+          symbols,
+        )
+      )
+      .addType(
+        generateParentModule(
+          parentModuleName,
+          componentClassName,
+          parentComponent.toClassName(),
+        ) {
+          if (isPresenter) {
+            generateProvidesPresenterFactory(
+              factoryClassName,
+              screen.toClassName(),
+              symbols,
             )
-            .addType(
-                generateSubcomponentFactory(
-                    factoryClassName,
-                    componentClassName,
-                    screen.toClassName(),
-                    isPresenter,
-                    symbols,
-                )
+          } else {
+            generateProvidesUiFactory(
+              factoryClassName,
+              screen.toClassName(),
+              symbols,
             )
-            .addType(
-                generateParentModule(
-                    parentModuleName,
-                    componentClassName,
-                    parentComponent.toClassName(),
-                ) {
-                    if (isPresenter) {
-                        generateProvidesPresenterFactory(
-                            factoryClassName,
-                            screen.toClassName(),
-                            symbols,
-                        )
-                    } else {
-                        generateProvidesUiFactory(
-                            factoryClassName,
-                            screen.toClassName(),
-                            symbols,
-                        )
-                    }
-                }
-            )
-            .let { builder ->
-                element.containingFile?.let { file -> builder.addOriginatingKSFile(file) }
-                    ?: builder
-            }
-            .build()
+          }
+        }
+      )
+      .let { builder ->
+        element.containingFile?.let { file -> builder.addOriginatingKSFile(file) }
+          ?: builder
+      }
+      .build()
 
-        FileSpec.builder(elementType.toClassName().packageName, componentClassName.simpleName)
-            .addType(subcomponentTypeSpec)
-            .build()
-            .writeTo(codeGenerator = codeGenerator, aggregating = false)
+    FileSpec.builder(elementType.toClassName().packageName, componentClassName.simpleName)
+      .addType(subcomponentTypeSpec)
+      .build()
+      .writeTo(codeGenerator = codeGenerator, aggregating = false)
+  }
+
+  private fun generateSubcomponentFactory(
+    className: ClassName,
+    subcomponent: TypeName,
+    screen: ClassName,
+    hasNavigator: Boolean,
+    symbols: HelmSymbols
+  ): TypeSpec {
+    val createParams = mutableListOf(
+      ParameterSpec.builder("screen", screen)
+        .addAnnotation(BindsInstance::class)
+        .build()
+    )
+    if (hasNavigator) {
+      createParams += ParameterSpec
+        .builder("navigator", symbols.navigator.toClassName())
+        .addAnnotation(BindsInstance::class)
+        .build()
     }
 
-    private fun generateSubcomponentFactory(
-        className: ClassName,
-        subcomponent: TypeName,
-        screen: ClassName,
-        hasNavigator: Boolean,
-        symbols: HelmSymbols
-    ): TypeSpec {
-        val createParams = mutableListOf(
-            ParameterSpec.builder("screen", screen)
-                .addAnnotation(BindsInstance::class)
-                .build()
-        )
-        if (hasNavigator) {
-            createParams += ParameterSpec
-                .builder("navigator", symbols.navigator.toClassName())
-                .addAnnotation(BindsInstance::class)
-                .build()
-        }
+    val createFun = FunSpec.builder("create")
+      .addModifiers(KModifier.ABSTRACT)
+      .addParameters(createParams)
+      .returns(subcomponent)
+      .build()
 
-        val createFun = FunSpec.builder("create")
-            .addModifiers(KModifier.ABSTRACT)
-            .addParameters(createParams)
-            .returns(subcomponent)
-            .build()
+    return TypeSpec.interfaceBuilder(className)
+      .addAnnotation(Subcomponent.Factory::class)
+      .addFunction(createFun)
+      .build()
+  }
 
-        return TypeSpec.interfaceBuilder(className)
-            .addAnnotation(Subcomponent.Factory::class)
-            .addFunction(createFun)
-            .build()
-    }
-
-    private fun generateParentModule(
-        className: ClassName,
-        componentClassName: ClassName,
-        parentComponent: ClassName,
-        funSpecProducer: () -> FunSpec,
-    ): TypeSpec = TypeSpec.classBuilder(className)
-        .addAnnotation(
-            AnnotationSpec.builder(Module::class)
-                .addMember("subcomponents = [%T::class]", componentClassName)
-                .build()
-        )
-        .addAnnotation(
-            AnnotationSpec.builder(InstallIn::class)
-                .addMember("%T::class", parentComponent)
-                .build()
-        )
-        .addFunction(funSpecProducer())
+  private fun generateParentModule(
+    className: ClassName,
+    componentClassName: ClassName,
+    parentComponent: ClassName,
+    funSpecProducer: () -> FunSpec,
+  ): TypeSpec = TypeSpec.classBuilder(className)
+    .addAnnotation(
+      AnnotationSpec.builder(Module::class)
+        .addMember("subcomponents = [%T::class]", componentClassName)
         .build()
-
-    private fun generateProvidesPresenterFactory(
-        factoryClassName: ClassName,
-        screenClassName: ClassName,
-        symbols: HelmSymbols,
-    ) = FunSpec.builder("presenterFactory")
-        .addAnnotation(Provides::class)
-        .addAnnotation(IntoSet::class)
-        .addParameter("componentFactory", factoryClassName)
-        .returns(symbols.presenterFactory.toClassName())
-        .addCode(
-            CodeBlock.builder()
-                .beginControlFlow("return object : %T", symbols.presenterFactory.toClassName())
-                .beginControlFlow(
-                    "override fun create(screen: %T, navigator: %T): %T?",
-                    symbols.screen.toClassName(), symbols.navigator.toClassName(),
-                    symbols.presenter.toClassName().parameterizedBy(STAR, STAR)
-                )
-                .beginControlFlow("return if (screen is %T)", screenClassName)
-                .addStatement("componentFactory.create(screen, navigator).element()")
-                .nextControlFlow("else")
-                .addStatement("null")
-                .endControlFlow()
-                .endControlFlow()
-                .endControlFlow()
-                .build()
-        )
+    )
+    .addAnnotation(
+      AnnotationSpec.builder(InstallIn::class)
+        .addMember("%T::class", parentComponent)
         .build()
+    )
+    .addFunction(funSpecProducer())
+    .build()
 
-    private fun generateProvidesUiFactory(
-        factoryClassName: ClassName,
-        screenClassName: ClassName,
-        symbols: HelmSymbols,
-    ) = FunSpec.builder("uiFactory")
-        .addAnnotation(Provides::class)
-        .addAnnotation(IntoSet::class)
-        .addParameter("componentFactory", factoryClassName)
-        .returns(symbols.uiFactory.toClassName())
-        .addCode(
-            CodeBlock.builder()
-                .beginControlFlow("return object : %T", symbols.uiFactory.toClassName())
-                .beginControlFlow(
-                    "override fun create(screen: %T): %T?",
-                    symbols.screen.toClassName(),
-                    symbols.ui.toClassName().parameterizedBy(STAR, STAR)
-                )
-                .beginControlFlow("return if (screen is %T)", screenClassName)
-                .addStatement("componentFactory.create(screen).element()")
-                .nextControlFlow("else")
-                .addStatement("null")
-                .endControlFlow()
-                .endControlFlow()
-                .endControlFlow()
-                .build()
+  private fun generateProvidesPresenterFactory(
+    factoryClassName: ClassName,
+    screenClassName: ClassName,
+    symbols: HelmSymbols,
+  ) = FunSpec.builder("presenterFactory")
+    .addAnnotation(Provides::class)
+    .addAnnotation(IntoSet::class)
+    .addParameter("componentFactory", factoryClassName)
+    .returns(symbols.presenterFactory.toClassName())
+    .addCode(
+      CodeBlock.builder()
+        .beginControlFlow("return object : %T", symbols.presenterFactory.toClassName())
+        .beginControlFlow(
+          "override fun create(screen: %T, navigator: %T): %T?",
+          symbols.screen.toClassName(), symbols.navigator.toClassName(),
+          symbols.presenter.toClassName().parameterizedBy(STAR, STAR)
         )
+        .beginControlFlow("return if (screen is %T)", screenClassName)
+        .addStatement("componentFactory.create(screen, navigator).element()")
+        .nextControlFlow("else")
+        .addStatement("null")
+        .endControlFlow()
+        .endControlFlow()
+        .endControlFlow()
         .build()
+    )
+    .build()
+
+  private fun generateProvidesUiFactory(
+    factoryClassName: ClassName,
+    screenClassName: ClassName,
+    symbols: HelmSymbols,
+  ) = FunSpec.builder("uiFactory")
+    .addAnnotation(Provides::class)
+    .addAnnotation(IntoSet::class)
+    .addParameter("componentFactory", factoryClassName)
+    .returns(symbols.uiFactory.toClassName())
+    .addCode(
+      CodeBlock.builder()
+        .beginControlFlow("return object : %T", symbols.uiFactory.toClassName())
+        .beginControlFlow(
+          "override fun create(screen: %T): %T?",
+          symbols.screen.toClassName(),
+          symbols.ui.toClassName().parameterizedBy(STAR, STAR)
+        )
+        .beginControlFlow("return if (screen is %T)", screenClassName)
+        .addStatement("componentFactory.create(screen).element()")
+        .nextControlFlow("else")
+        .addStatement("null")
+        .endControlFlow()
+        .endControlFlow()
+        .endControlFlow()
+        .build()
+    )
+    .build()
 }
 
 private class HelmSymbols(resolver: Resolver) {
-    val helmInject = resolver.loadKSType<HelmInject>()
-    val presenterFactory = resolver.loadKSType<Presenter.Factory>()
-    val uiFactory = resolver.loadKSType<Ui.Factory>()
-    val screen = resolver.loadKSType<Screen>()
-    val navigator = resolver.loadKSType<Navigator>()
-    val presenter = resolver.loadKSType<Presenter<*, *>>()
-    val ui = resolver.loadKSType<Ui<*, *>>()
+  val helmInject = resolver.loadKSType<HelmInject>()
+  val presenterFactory = resolver.loadKSType<Presenter.Factory>()
+  val uiFactory = resolver.loadKSType<Ui.Factory>()
+  val screen = resolver.loadKSType<Screen>()
+  val navigator = resolver.loadKSType<Navigator>()
+  val presenter = resolver.loadKSType<Presenter<*, *>>()
+  val ui = resolver.loadKSType<Ui<*, *>>()
 }
 
 private inline fun <reified T> Resolver.loadKSType(): KSType =
-    loadOptionalKSType<T>() ?: error("Failed to load ${T::class.qualifiedName} from classpath.")
+  loadOptionalKSType<T>() ?: error("Failed to load ${T::class.qualifiedName} from classpath.")
 
 private inline fun <reified T> Resolver.loadOptionalKSType(): KSType? =
-    loadKSName<T>()?.let { getClassDeclarationByName(it) }?.asType(emptyList())
+  loadKSName<T>()?.let { getClassDeclarationByName(it) }?.asType(emptyList())
 
 private inline fun <reified T> Resolver.loadKSName(): KSName? =
-    when (val name = T::class.qualifiedName) {
-        null -> null
-        else -> getKSNameFromString(name)
-    }
+  when (val name = T::class.qualifiedName) {
+    null -> null
+    else -> getKSNameFromString(name)
+  }

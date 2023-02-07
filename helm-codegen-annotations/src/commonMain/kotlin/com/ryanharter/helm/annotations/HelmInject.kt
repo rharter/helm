@@ -5,6 +5,6 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class HelmInject(
-    val screen: KClass<out Screen>,
-    val scope: KClass<out Any>,
+  val screen: KClass<out Screen>,
+  val scope: KClass<out Any>,
 )

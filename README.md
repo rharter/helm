@@ -10,7 +10,7 @@ This is an experimental library that's not really intended for public use.
 Helm is a navigation and presentation framework that allows you to build your UI and Presenter layer
 using Jetpack Compose all the way down.
 
-The basic implementation consists of a `Screen`, which is the data that represents a navigation 
+The basic implementation consists of a `Screen`, which is the data that represents a navigation
 destination, a `Presenter`, a class containing a single Composable function that takes in a stream
 of `UiEvent`s and converts them into `UiModel`s, and a `Ui`, which displays `UiModel`s and emits
 `UiEvent`s.
