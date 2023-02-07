@@ -1,0 +1,92 @@
+[versions]
+androidx-activity = "1.6.1"
+agp = "7.3.1"
+jetbrains-compose = "1.3.0"
+compose = "1.3.1"
+compose-compiler = "1.3.2"
+coroutines = "1.6.4"
+dagger = "2.44"
+kotlin = "1.7.20"
+kotlinpoet = "1.12.0"
+ksp = "1.7.20-1.0.8"
+ktor = "2.1.2"
+androidx-lifecycle = "2.4.1"
+coil = "2.2.1"
+room = "2.4.3"
+smack = "4.4.6"
+
+[libraries]
+androidx-core = "androidx.core:core-ktx:1.7.0"
+androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+coil = { module = "io.coil-kt:coil", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+
+androidx-compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
+androidx-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
+androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
+androidx-compose-layout = { module = "androidx.compose.foundation:foundation-layout", version.ref = "compose" }
+androidx-compose-material-iconsext = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
+androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
+androidx-compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose" }
+androidx-compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+androidx-compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
+androidx-compose-ui-viewbinding = { module = "androidx.compose.ui:ui-viewbinding", version.ref = "compose" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
+androidx-compose-material3 = "androidx.compose.material3:material3:1.0.0-alpha08"
+androidx-compose-navigation = { module = "androidx.navigation:navigation-compose", version = "2.5.2" }
+
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "jetbrains-compose" }
+
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+hilt-core = { module = "com.google.dagger:hilt-core", version.ref = "dagger" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger" }
+hilt-runtime = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
+hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger" }
+hilt-compose = "androidx.hilt:hilt-navigation-compose:1.0.0"
+
+kotlin-compile-testing = "com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.9"
+kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet"}
+kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet"}
+kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.0"
+kotlinx-serialization-xml = { module = "com.ryanharter.kotlinx.serialization:kotlinx-serialization-xml", version = "0.0.1-SNAPSHOT" }
+ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
+ktor-network-tls = { module = "io.ktor:ktor-network-tls", version.ref = "ktor" }
+minidns = { module = "org.minidns:minidns-hla", version = "1.0.3" }
+minidns-android = { module = "org.minidns:minidns-android21", version = "1.0.3" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-runtime = { module = "androidx.room:room-ktx", version.ref = "room" }
+smack-android-extensions = { module = "org.igniterealtime.smack:smack-android-extensions", version.ref = "smack" }
+smack-omemo-signal = { module = "org.igniterealtime.smack:smack-omemo-signal", version.ref = "smack" }
+smack-tcp = { module = "org.igniterealtime.smack:smack-tcp", version.ref = "smack" }
+smack-resolver-minidns = { module = "org.igniterealtime.smack:smack-resolver-minidns", version.ref = "smack" }
+
+junit = "junit:junit:4.13.2"
+androidx-test-junit = "androidx.test.ext:junit:1.1.3"
+espresso-core = "androidx.test.espresso:espresso-core:3.4.0"
+truth = "com.google.truth:truth:1.1.3"
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+android-lint = { id = "com.android.lint", version.ref = "agp" }
+android-test = { id = "com.android.test", version.ref = "agp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version = "1.7.20-1.0.7"}
+mavenPublish = { id = "com.vanniktech.maven.publish.base", version = "0.22.0" }
