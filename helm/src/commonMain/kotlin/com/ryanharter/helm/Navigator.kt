@@ -27,7 +27,6 @@ interface Navigator {
   fun popWhile(predicate: (screen: Screen) -> Boolean)
 }
 
-
 @Stable
 class ComposeNavigator(
   private val router: Router,
@@ -75,7 +74,7 @@ internal expect fun ComposeNavigatorSaver(
 fun rememberNavigator(
   router: Router,
   initialScreen: Screen,
-): ComposeNavigator =
+): Navigator =
   rememberSaveable(inputs = arrayOf(router), saver = ComposeNavigatorSaver(router, initialScreen)) {
     ComposeNavigator(router, initialScreen)
   }

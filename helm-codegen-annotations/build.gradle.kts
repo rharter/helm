@@ -12,11 +12,11 @@ kotlin {
 //    js(KotlinJsCompilerType.IR) {
 //        browser()
 //    }
-  macosX64()
-  macosArm64()
-  iosX64()
-  iosArm64()
-  iosSimulatorArm64("uikitSimulatorArm64")
+//  macosX64()
+//  macosArm64()
+//  iosX64()
+//  iosArm64()
+//  iosSimulatorArm64("uikitSimulatorArm64")
 
   sourceSets {
     commonMain { dependencies { api(projects.helm) } }

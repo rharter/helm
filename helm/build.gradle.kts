@@ -17,7 +17,7 @@ kotlin {
   macosArm64()
   iosX64("uikitX64")
   iosArm64("uikitArm64")
-  iosSimulatorArm64("uikitSimulatorArm64")
+//  iosSimulatorArm64("uikitSimulatorArm64")
 
   sourceSets {
     val commonMain by getting {
@@ -58,9 +58,9 @@ kotlin {
     val uikitArm64Main by getting {
       dependsOn(uikitMain)
     }
-    val uikitSimulatorArm64Main by getting {
-      dependsOn(uikitMain)
-    }
+//    val uikitSimulatorArm64Main by getting {
+//      dependsOn(uikitMain)
+//    }
   }
 }
 
