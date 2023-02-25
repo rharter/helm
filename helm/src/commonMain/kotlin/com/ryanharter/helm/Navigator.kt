@@ -88,9 +88,11 @@ expect fun BackHandler(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Navigator(
-  navigator: ComposeNavigator,
+  navigator: Navigator,
   modifier: Modifier = Modifier,
 ) {
+  require(navigator is ComposeNavigator)
+
   BackHandler(enabled = navigator.backStack.size > 1, onBack = navigator::popBackStack)
 
   val screen = navigator.backStack.lastOrNull()

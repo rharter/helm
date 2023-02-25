@@ -22,7 +22,6 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        api(libs.compose.runtime)
         api(libs.coroutines)
         api(libs.compose.runtime)
         api(libs.compose.animation)

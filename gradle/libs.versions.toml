@@ -56,6 +56,8 @@ hilt-runtime = { module = "com.google.dagger:hilt-android", version.ref = "dagge
 hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger" }
 hilt-compose = "androidx.hilt:hilt-navigation-compose:1.0.0"
 
+kotlin-inject-runtime = "me.tatarka.inject:kotlin-inject-runtime:0.6.1"
+
 kotlin-compile-testing = "com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.9"
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
